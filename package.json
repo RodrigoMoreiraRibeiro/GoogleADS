@@ -1,0 +1,26 @@
+{
+  "name": "google-ads-saas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Monorepo inicial do SaaS multi-tenant para analytics e automacao de Google Ads.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20.19.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev:api": "npm.cmd run dev:api:plain",
+    "dev:api:plain": "npm.cmd run build --workspace @googleads/shared && npm.cmd run build --workspace @googleads/api && node apps/api/dist/apps/api/src/bootstrap/main.js",
+    "dev:web": "npm run dev --workspace @googleads/web",
+    "generate:pitch:pptx": "node scripts/generate-client-pitch-pptx.cjs",
+    "format": "prettier --write .",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}

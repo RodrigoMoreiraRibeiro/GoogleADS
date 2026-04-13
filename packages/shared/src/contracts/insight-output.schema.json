@@ -1,0 +1,262 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://googleads.local/schemas/insight-output.schema.json",
+  "title": "InsightOutput",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "tenant_id",
+    "account_id",
+    "entity_type",
+    "entity_id",
+    "category",
+    "severity",
+    "priority_score",
+    "confidence_score",
+    "title",
+    "summary",
+    "evidence",
+    "diagnosis",
+    "primary_hypothesis",
+    "alternative_hypotheses",
+    "recommended_action",
+    "expected_impact",
+    "risk_level",
+    "technical_explanation",
+    "executive_explanation",
+    "generated_at",
+    "period_reference"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "tenant_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "account_id": {
+      "type": ["string", "null"],
+      "minLength": 0,
+      "maxLength": 64
+    },
+    "entity_type": {
+      "type": "string",
+      "enum": ["account", "campaign", "device", "geo", "schedule", "keyword", "search_term", "tracking"]
+    },
+    "entity_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "category": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["info", "warning", "critical"]
+    },
+    "priority_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "confidence_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 191
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 320
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "$ref": "#/$defs/evidenceItem"
+      }
+    },
+    "diagnosis": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 1000
+    },
+    "primary_hypothesis": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 400
+    },
+    "alternative_hypotheses": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "string",
+        "minLength": 5,
+        "maxLength": 240
+      }
+    },
+    "recommended_action": {
+      "$ref": "#/$defs/recommendedAction"
+    },
+    "expected_impact": {
+      "$ref": "#/$defs/expectedImpact"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    },
+    "technical_explanation": {
+      "type": "string",
+      "minLength": 30,
+      "maxLength": 1200
+    },
+    "executive_explanation": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 600
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "period_reference": {
+      "$ref": "#/$defs/periodReference"
+    }
+  },
+  "$defs": {
+    "evidenceItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_id", "metric", "window", "note"],
+      "properties": {
+        "evidence_id": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "metric": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "current_value": {
+          "type": ["number", "null"]
+        },
+        "baseline_value": {
+          "type": ["number", "null"]
+        },
+        "delta_pct": {
+          "type": ["number", "null"]
+        },
+        "window": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 64
+        },
+        "scope_label": {
+          "type": ["string", "null"],
+          "minLength": 0,
+          "maxLength": 160
+        },
+        "note": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 240
+        }
+      }
+    },
+    "recommendedAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action_type", "action_target", "description", "execution_mode"],
+      "properties": {
+        "action_type": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 64
+        },
+        "action_target": {
+          "type": ["string", "null"],
+          "minLength": 0,
+          "maxLength": 120
+        },
+        "description": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 300
+        },
+        "execution_mode": {
+          "type": "string",
+          "enum": ["manual", "semi_automatic", "informational"]
+        }
+      }
+    },
+    "expectedImpact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["impact_type", "direction", "summary"],
+      "properties": {
+        "impact_type": {
+          "type": "string",
+          "enum": ["efficiency", "volume", "cost_control", "budget_allocation", "tracking", "mixed"]
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["increase", "decrease", "protect", "investigate"]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 240
+        }
+      }
+    },
+    "periodReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["analysis_window", "period_start", "period_end", "comparison_label"],
+      "properties": {
+        "analysis_window": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 64
+        },
+        "period_start": {
+          "type": "string",
+          "format": "date"
+        },
+        "period_end": {
+          "type": "string",
+          "format": "date"
+        },
+        "baseline_start": {
+          "type": ["string", "null"],
+          "format": "date"
+        },
+        "baseline_end": {
+          "type": ["string", "null"],
+          "format": "date"
+        },
+        "comparison_label": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 120
+        }
+      }
+    }
+  }
+}
