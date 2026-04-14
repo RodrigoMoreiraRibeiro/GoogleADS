@@ -428,7 +428,9 @@ textarea {
 .support-grid,
 .admin-grid,
 .filters-grid,
-.recommendation-grid {
+.recommendation-grid,
+.agent-summary-grid,
+.agent-skeleton-grid {
   display: grid;
   gap: 16px;
 }
@@ -442,6 +444,11 @@ textarea {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.agent-summary-grid,
+.agent-skeleton-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .filters-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -449,6 +456,147 @@ textarea {
 .recommendation-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: 18px;
+}
+
+.agent-analysis-meta,
+.agent-filter-row,
+.agent-card-footer,
+.agent-score-stack {
+  display: flex;
+  gap: 12px;
+}
+
+.agent-analysis-meta,
+.agent-card-footer {
+  flex-wrap: wrap;
+}
+
+.agent-filter-row {
+  align-items: end;
+  margin: 20px 0;
+}
+
+.agent-filter-row .field {
+  min-width: 220px;
+}
+
+.agent-lane {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.agent-lane-header {
+  display: grid;
+  gap: 4px;
+}
+
+.agent-card-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.agent-focus-card {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(20, 32, 51, 0.03);
+  border: 1px solid rgba(20, 32, 51, 0.07);
+}
+
+.agent-card-footer,
+.agent-score-stack {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.agent-score-stack {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.agent-table {
+  display: grid;
+  gap: 10px;
+}
+
+.agent-table-head,
+.agent-table-row {
+  display: grid;
+  grid-template-columns:
+    minmax(130px, 0.9fr)
+    minmax(120px, 0.8fr)
+    minmax(180px, 1fr)
+    minmax(260px, 1.7fr)
+    minmax(120px, 0.7fr)
+    minmax(200px, 1.1fr);
+  gap: 14px;
+}
+
+.agent-table-head {
+  padding: 0 0 10px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--line);
+}
+
+.agent-table-row {
+  align-items: start;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.agent-table-row:last-child {
+  border-bottom: none;
+}
+
+.agent-table-priority {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.agent-table-summary {
+  display: grid;
+  gap: 6px;
+}
+
+.agent-table-header {
+  margin-top: 28px;
+  margin-bottom: 12px;
+}
+
+.agent-insights-placeholder {
+  display: grid;
+  gap: 16px;
+}
+
+.agent-skeleton {
+  min-height: 110px;
+  border-radius: 24px;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(20, 32, 51, 0.05) 0%,
+      rgba(20, 32, 51, 0.08) 50%,
+      rgba(20, 32, 51, 0.05) 100%
+    );
+}
+
+.agent-skeleton-wide {
+  min-height: 72px;
+}
+
+.agent-skeleton-table {
+  min-height: 260px;
 }
 
 .metric-item,
@@ -700,9 +848,21 @@ textarea {
   .admin-grid,
   .filters-grid,
   .recommendation-grid,
+  .agent-summary-grid,
+  .agent-skeleton-grid,
   .admin-form-grid,
   .metric-grid {
     grid-template-columns: 1fr;
+  }
+
+  .agent-table-head {
+    display: none;
+  }
+
+  .agent-table-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 18px 0;
   }
 
   .workspace-sidebar {
@@ -720,7 +880,8 @@ textarea {
 
   .workspace-topbar,
   .surface-header,
-  .button-row {
+  .button-row,
+  .agent-filter-row {
     flex-direction: column;
     align-items: stretch;
   }

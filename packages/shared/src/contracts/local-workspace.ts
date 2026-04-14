@@ -1,8 +1,14 @@
 import type { OptimizationAgentView } from './optimization-agent';
 
 export const LOCAL_WORKSPACE_PERIODS = ['last_7d', 'last_30d'] as const;
+export const LOCAL_WORKSPACE_INSIGHT_LEVELS = [
+  'technical',
+  'executive',
+] as const;
 
 export type LocalWorkspacePeriod = (typeof LOCAL_WORKSPACE_PERIODS)[number];
+export type LocalWorkspaceInsightLevel =
+  (typeof LOCAL_WORKSPACE_INSIGHT_LEVELS)[number];
 
 export interface LocalWorkspaceTenantOption {
   readonly tenantId: string;
@@ -74,6 +80,56 @@ export interface LocalWorkspaceInsightItem {
   readonly generatedAt: string;
 }
 
+export interface LocalWorkspaceAnalysisRunInfo {
+  readonly analysisRunId: string;
+  readonly status: 'queued' | 'running' | 'completed' | 'failed';
+  readonly generatedBy: 'system' | 'user';
+  readonly comparisonLabel: string | null;
+  readonly insightCount: number;
+  readonly createdAt: string;
+  readonly startedAt: string | null;
+  readonly finishedAt: string | null;
+}
+
+export interface LocalWorkspaceAgentInsightItem {
+  readonly insightId: string;
+  readonly analysisRunId: string;
+  readonly entityType: string;
+  readonly entityId: string;
+  readonly entityLabel: string | null;
+  readonly category: string;
+  readonly severity: 'info' | 'warning' | 'critical';
+  readonly priorityBand: 'low' | 'medium' | 'high' | 'critical';
+  readonly priorityScore: number;
+  readonly confidenceBand: 'low' | 'moderate' | 'high' | 'very_high';
+  readonly confidenceScore: number;
+  readonly riskLevel: 'low' | 'medium' | 'high';
+  readonly hypothesisStatus:
+    | 'confirmed'
+    | 'plausible'
+    | 'weak'
+    | 'insufficient_evidence'
+    | null;
+  readonly title: string;
+  readonly summary: string;
+  readonly diagnosis: string;
+  readonly technicalExplanation: string;
+  readonly executiveExplanation: string;
+  readonly recommendedAction: string;
+  readonly recommendedActionType: string;
+  readonly expectedImpact: string | null;
+  readonly sourceAgentNames: readonly string[];
+  readonly generatedAt: string;
+}
+
+export interface LocalWorkspaceAgentInsightsView {
+  readonly lastAnalysis: LocalWorkspaceAnalysisRunInfo | null;
+  readonly availableCategories: readonly string[];
+  readonly topProblems: readonly LocalWorkspaceAgentInsightItem[];
+  readonly topOpportunities: readonly LocalWorkspaceAgentInsightItem[];
+  readonly prioritizedInsights: readonly LocalWorkspaceAgentInsightItem[];
+}
+
 export interface LocalWorkspaceReportItem {
   readonly reportId: string;
   readonly periodLabel: string;
@@ -118,6 +174,7 @@ export interface LocalWorkspaceView {
   readonly reports: LocalWorkspaceReportItem[];
   readonly connections: LocalWorkspaceConnectionItem[];
   readonly syncHealth: LocalWorkspaceSyncHealth | null;
+  readonly lastAnalysis: LocalWorkspaceAnalysisRunInfo | null;
 }
 
 export interface LocalDemoSeedResponse {

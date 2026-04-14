@@ -4,6 +4,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import type {
+  LocalWorkspaceAnalysisRunInfo,
   LocalWorkspaceCampaignItem,
   LocalWorkspaceClientOption,
   LocalWorkspaceConnectionItem,
@@ -127,6 +128,7 @@ export class LocalWorkspaceService {
         reports,
         connections,
         syncHealth,
+        lastAnalysis,
       ] = await Promise.all([
         periodWindow === null
           ? Promise.resolve(null)
@@ -166,6 +168,7 @@ export class LocalWorkspaceService {
         this.getReports(selectedTenant.tenantId, selectedClient.clientId),
         this.getConnections(selectedTenant.tenantId, selectedClient.clientId),
         this.getSyncHealth(selectedTenant.tenantId, selectedClient.clientId),
+        this.getLastAnalysisRun(selectedTenant.tenantId, selectedClient.clientId),
       ]);
 
       return {
@@ -196,6 +199,7 @@ export class LocalWorkspaceService {
         reports,
         connections,
         syncHealth,
+        lastAnalysis,
       };
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -704,6 +708,69 @@ export class LocalWorkspaceService {
             : 'A base esta desatualizada. Rode um novo seed local ou revise os jobs.',
     };
   }
+
+  private async getLastAnalysisRun(
+    tenantId: string,
+    clientId: string,
+  ): Promise<LocalWorkspaceAnalysisRunInfo | null> {
+    const rows = await this.prismaService.$queryRaw<
+      Array<{
+        analysisRunId: bigint;
+        status: 'queued' | 'running' | 'completed' | 'failed';
+        generatedBy: 'system' | 'user';
+        comparisonLabel: string | null;
+        insightCount: bigint;
+        createdAt: Date;
+        startedAt: Date | null;
+        finishedAt: Date | null;
+      }>
+    >`
+      SELECT
+        ir.id AS analysisRunId,
+        ir.status AS status,
+        ir.generated_by AS generatedBy,
+        ir.comparison_label AS comparisonLabel,
+        COUNT(i.id) AS insightCount,
+        ir.created_at AS createdAt,
+        ir.started_at AS startedAt,
+        ir.finished_at AS finishedAt
+      FROM insight_runs ir
+      LEFT JOIN insights i
+        ON i.insight_run_id = ir.id
+       AND i.tenant_id = ir.tenant_id
+       AND i.client_id = ir.client_id
+       AND i.status = 'open'
+      WHERE ir.tenant_id = ${Number(tenantId)}
+        AND ir.client_id = ${Number(clientId)}
+      GROUP BY
+        ir.id,
+        ir.status,
+        ir.generated_by,
+        ir.comparison_label,
+        ir.created_at,
+        ir.started_at,
+        ir.finished_at
+      ORDER BY COALESCE(ir.finished_at, ir.started_at, ir.created_at) DESC
+      LIMIT 1
+    `;
+
+    const row = rows[0];
+
+    if (row === undefined) {
+      return null;
+    }
+
+    return {
+      analysisRunId: String(Number(row.analysisRunId)),
+      status: row.status,
+      generatedBy: row.generatedBy,
+      comparisonLabel: row.comparisonLabel,
+      insightCount: bigintToNumber(row.insightCount),
+      createdAt: row.createdAt.toISOString(),
+      startedAt: row.startedAt?.toISOString() ?? null,
+      finishedAt: row.finishedAt?.toISOString() ?? null,
+    };
+  }
 }
 
 function emptyWorkspaceView(): LocalWorkspaceView {
@@ -719,6 +786,7 @@ function emptyWorkspaceView(): LocalWorkspaceView {
     reports: [],
     connections: [],
     syncHealth: null,
+    lastAnalysis: null,
   };
 }
 

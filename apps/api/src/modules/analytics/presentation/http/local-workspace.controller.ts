@@ -7,8 +7,13 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import type { LocalDemoSeedResponse, LocalWorkspaceView } from '@googleads/shared';
+import type {
+  LocalDemoSeedResponse,
+  LocalWorkspaceAgentInsightsView,
+  LocalWorkspaceView,
+} from '@googleads/shared';
 
+import { LocalAgentInsightsService } from '../../application/local-agent-insights.service';
 import { LocalDemoSeedService } from '../../application/local-demo-seed.service';
 import { LocalWorkspaceService } from '../../application/local-workspace.service';
 import { LocalWorkspaceQueryDto } from './dto/local-workspace-query.dto';
@@ -17,6 +22,7 @@ import { LocalWorkspaceQueryDto } from './dto/local-workspace-query.dto';
 export class LocalWorkspaceController {
   public constructor(
     private readonly localWorkspaceService: LocalWorkspaceService,
+    private readonly localAgentInsightsService: LocalAgentInsightsService,
     private readonly localDemoSeedService: LocalDemoSeedService,
   ) {}
 
@@ -30,6 +36,18 @@ export class LocalWorkspaceController {
       tenantSlug: query.tenantSlug,
       clientId: query.clientId,
       period: query.period,
+    });
+  }
+
+  @Get('agent-insights')
+  public async getAgentInsights(
+    @Query() query: LocalWorkspaceQueryDto,
+  ): Promise<LocalWorkspaceAgentInsightsView> {
+    this.assertDevelopmentEnvironment();
+
+    return this.localAgentInsightsService.getAgentInsightsView({
+      tenantSlug: query.tenantSlug,
+      clientId: query.clientId,
     });
   }
 

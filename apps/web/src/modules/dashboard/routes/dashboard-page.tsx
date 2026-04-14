@@ -1,6 +1,5 @@
 import type {
   LocalWorkspaceCampaignItem,
-  LocalWorkspaceInsightItem,
   LocalWorkspacePeriod,
   OptimizationRecommendation,
 } from '@googleads/shared';
@@ -12,10 +11,12 @@ import {
 import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
+import { AgentInsightsPanel } from '../components/agent-insights-panel';
 import {
   fetchLocalWorkspace,
   seedLocalWorkspace,
 } from '../../../shared/local-workspace/local-workspace.api';
+import { useLocalAgentInsightsQuery } from '../../../shared/hooks/use-local-agent-insights-query';
 import { LocalWorkspaceFilters } from '../../../shared/local-workspace/local-workspace-filters';
 
 export function DashboardPage() {
@@ -50,6 +51,12 @@ export function DashboardPage() {
     workspace !== undefined && workspace.context !== null ? workspace : null;
   const activeContext =
     workspace !== undefined && workspace.context !== null ? workspace.context : null;
+  const agentInsightsQuery = useLocalAgentInsightsQuery({
+    tenantSlug: activeContext?.tenantSlug ?? selectedTenantSlug,
+    clientId: activeContext?.clientId ?? selectedClientId,
+    period: selectedPeriod,
+    enabled: workspaceWithContext !== null,
+  });
   const optimizationAgent = workspaceWithContext?.optimizationAgent ?? null;
   const maxDailySpend = Math.max(
     ...((workspaceWithContext?.dailySeries ?? []).map((item) => item.spend)),
@@ -247,6 +254,12 @@ export function DashboardPage() {
             </div>
           </section>
 
+          <AgentInsightsPanel
+            data={agentInsightsQuery.data}
+            isLoading={agentInsightsQuery.isLoading}
+            isError={agentInsightsQuery.isError}
+          />
+
           {optimizationAgent !== null ? (
             <section className="surface">
               <div className="surface-header">
@@ -363,44 +376,26 @@ export function DashboardPage() {
             </section>
           </div>
 
-          <div className="support-grid">
-            <section className="surface">
-              <div className="surface-header">
-                <div>
-                  <h2 className="surface-title">Top campanhas</h2>
-                  <p className="section-copy">
-                    Consolidadas do banco local para analise e priorizacao.
-                  </p>
-                </div>
+          <section className="surface">
+            <div className="surface-header">
+              <div>
+                <h2 className="surface-title">Top campanhas</h2>
+                <p className="section-copy">
+                  Consolidadas do banco local para leitura rapida de volume,
+                  eficiencia e oportunidade.
+                </p>
               </div>
+              <Link className="button-secondary" to="/reports">
+                Ver relatorios
+              </Link>
+            </div>
 
-              <div className="list-stack">
-                {workspaceWithContext.topCampaigns.map((campaign) => (
-                  <CampaignRow campaign={campaign} key={campaign.campaignId} />
-                ))}
-              </div>
-            </section>
-
-            <section className="surface">
-              <div className="surface-header">
-                <div>
-                  <h2 className="surface-title">Insights abertos</h2>
-                  <p className="section-copy">
-                    Leitura dos diagnosticos persistidos localmente.
-                  </p>
-                </div>
-                <Link className="button-secondary" to="/reports">
-                  Ver relatorios
-                </Link>
-              </div>
-
-              <div className="list-stack">
-                {workspaceWithContext.insights.map((insight) => (
-                  <InsightRow insight={insight} key={insight.insightId} />
-                ))}
-              </div>
-            </section>
-          </div>
+            <div className="list-stack">
+              {workspaceWithContext.topCampaigns.map((campaign) => (
+                <CampaignRow campaign={campaign} key={campaign.campaignId} />
+              ))}
+            </div>
+          </section>
 
           <section className="surface surface-quiet">
             <div className="surface-header">
@@ -468,23 +463,6 @@ function CampaignRow({
       </div>
       <span className="pill pill-neutral">
         {campaign.roas === null ? 'Sem ROAS' : `${campaign.roas.toFixed(2)}x`}
-      </span>
-    </div>
-  );
-}
-
-function InsightRow({
-  insight,
-}: {
-  readonly insight: LocalWorkspaceInsightItem;
-}) {
-  return (
-    <div className="note-block">
-      <strong>{insight.title}</strong>
-      <span className="list-row-text">{insight.summary}</span>
-      <span className="list-row-text">
-        Acao sugerida: <strong>{insight.recommendedAction}</strong> | Confianca{' '}
-        {(insight.confidenceScore * 100).toFixed(0)}%
       </span>
     </div>
   );
